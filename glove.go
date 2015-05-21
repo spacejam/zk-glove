@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"math/rand"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -13,10 +14,11 @@ import (
 
 var (
 	zkConnect string
-	zkChroot  string = "/zk-glove"
+	zkChroot  = "/zk-glove"
 	zkServers []string
 	threshold uint
 	cmd       string
+	data      string
 )
 
 // Necessary to prevent zk from timing out our connection
@@ -30,7 +32,7 @@ func pinger(c *zk.Conn) {
 
 func run(c *zk.Conn) {
 	result, err := c.Create(zkChroot+"/",
-		[]byte("yo"),
+		[]byte(data),
 		zk.FlagEphemeral|zk.FlagSequence,
 		zk.WorldACL(zk.PermAll))
 	if err != nil {
@@ -79,8 +81,13 @@ func main() {
 }
 
 func init() {
+	hn, err := os.Hostname()
+	if err != nil {
+		hn = ""
+	}
 	flag.StringVar(&zkConnect, "zk", "zk://127.0.0.1:2181/somedir", "zookeeper URI")
 	flag.StringVar(&cmd, "exec", "echo yaaas", "command to execute")
+	flag.StringVar(&data, "data", hn, "contents of znode (for discovery)")
 	flag.UintVar(&threshold, "threshold", 3, "max concurrent commands")
 	flag.Parse()
 
