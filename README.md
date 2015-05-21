@@ -1,4 +1,4 @@
-# zk-glove
+# [WIP] zk-glove
 a small collection of command line tools for distributed orchestration, using zookeeper
 ```
 Glove Usage 
@@ -14,7 +14,7 @@ Hat Usage
   -hardLimit=true: only run command when threshold is reached with different members
   -pollFreq=30: zk polling frequency
   -pollJitter=30: zk polling random jitter
-  -threshold=3: max concurrent commands
+  -threshold=3: max considered nodes
   -zk="zk://127.0.0.1:2181/somedir": zookeeper URI
 
 ```

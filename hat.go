@@ -81,6 +81,7 @@ func main() {
 			log.Fatal(err)
 		}
 		if len(newChildren) > int(threshold) {
+			// TODO sort this and only take lower members
 			newChildren = newChildren[:threshold]
 		}
 
