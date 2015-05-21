@@ -30,6 +30,7 @@ func pinger(c *zk.Conn) {
 	}
 }
 
+//TODO ensure that our znode is actually in the initial [threshold] before running
 func run(c *zk.Conn) {
 	result, err := c.Create(zkChroot+"/",
 		[]byte(data),
