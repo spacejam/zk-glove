@@ -32,7 +32,7 @@ func run(c *zk.Conn) {
 	result, err := c.Create(zkChroot+"/",
 		[]byte("yo"),
 		zk.FlagEphemeral|zk.FlagSequence,
-		zk.WorldACL(777))
+		zk.WorldACL(zk.PermAll))
 	if err != nil {
 		panic(err)
 	}
