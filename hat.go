@@ -36,12 +36,13 @@ func run(nodes string) {
 	}
 	head := parts[0]
 	tail := parts[1:len(parts)]
-	command := exec.Command(head, tail...)
-	output, err := command.Output()
-	if err != nil {
-		log.Fatal(err)
-	}
 	log.Printf("Calling command: sh -c \"%s\"", strings.Join(tail[1:], " "))
+
+	command := exec.Command(head, tail...)
+	output, err := command.CombinedOutput()
+	if err != nil {
+		log.Printf("command error: %s", err)
+	}
 	err = command.Wait()
 	log.Printf("command finished")
 	log.Printf("command output:\n%s", output)

@@ -69,14 +69,17 @@ func run(c *zk.Conn) {
 	parts := []string{"sh", "-c", cmd}
 	head := parts[0]
 	tail := parts[1:len(parts)]
+	log.Printf("Calling command: sh -c \"%s\"", strings.Join(tail[1:], " "))
+
+	// TODO pipe stdout/err as it is emitted
 	command := exec.Command(head, tail...)
-	err = command.Start()
+	output, err := command.CombinedOutput()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("command error: %s", err)
 	}
-	log.Printf("Waiting for command to finish...")
 	err = command.Wait()
 	log.Printf("command finished")
+	log.Printf("command output:\n%s", output)
 }
 
 func main() {
