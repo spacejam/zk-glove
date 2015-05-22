@@ -3,7 +3,7 @@ A small collection of command line tools for distributed orchestration, backed b
 * *glove* is for attempting to run a command, without crossing a maximum number that may run concurrently.
 * *hat* is for monitoring running commands, and performing certain actions when the membership changes, optionally only once a threshold is (re-)crossed.
 
-Together these simple tools can form the backbone of a simple zk-backed service discovery mechanism.  For example, you can run some caches using glove, and use hat to send changes in membership to clients.
+Together these simple tools can facilitate a simple zk-backed service discovery mechanism.  For example, you can run some caches using glove, and use hat to send changes in membership to clients.
 
 ```
 Glove Usage 
