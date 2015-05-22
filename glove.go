@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"sort"
 	"strings"
 	"time"
 
@@ -30,19 +31,42 @@ func pinger(c *zk.Conn) {
 	}
 }
 
-//TODO ensure that our znode is actually in the initial [threshold] before running
 func run(c *zk.Conn) {
-	result, err := c.Create(zkChroot+"/",
+	myNode, err := c.Create(zkChroot+"/",
 		[]byte(data),
 		zk.FlagEphemeral|zk.FlagSequence,
 		zk.WorldACL(zk.PermAll))
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("using znode %+v \n", result)
+	log.Printf("using znode %+v \n", myNode)
+
+	// we need to verify that we made it into the runnable group before continuing
+	children, _, err := c.Children(zkChroot)
+	if err != nil {
+		panic(err)
+	}
+
+	if len(children) > int(threshold) {
+		ss := sort.StringSlice(children[:threshold])
+		ss.Sort()
+		found := false
+		for i := 0; i < len(ss); i++ {
+			if ss[i] == myNode {
+				found = true
+				break
+			}
+		}
+		if !found {
+			log.Printf("already at our threshold of %+v, exiting\n", threshold)
+			return
+		}
+
+	}
+
 	go pinger(c)
 
-	parts := strings.Fields(cmd)
+	parts := []string{"sh", "-c", cmd}
 	head := parts[0]
 	tail := parts[1:len(parts)]
 	command := exec.Command(head, tail...)

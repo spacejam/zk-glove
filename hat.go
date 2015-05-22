@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"log"
 	"math/rand"
 	"os/exec"
 	"reflect"
+	"sort"
 	"strings"
 	"time"
 
@@ -29,36 +29,22 @@ func splay() {
 	time.Sleep((time.Duration(frequency) * time.Second) + (time.Duration(rand.Intn(jitter)) * time.Second))
 }
 
-//TODO fix execution
 func run(nodes string) {
-	parts := strings.Fields(cmd)
+	parts := []string{"sh", "-c", cmd}
 	for i := 0; i < len(parts); i++ {
-		if parts[i] == "{}" {
-			parts[i] = nodes
-		}
+		parts[i] = strings.Replace(parts[i], "{}", nodes, -1)
 	}
 	head := parts[0]
 	tail := parts[1:len(parts)]
 	command := exec.Command(head, tail...)
-	stdout, err := command.StdoutPipe()
+	output, err := command.Output()
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = command.Start()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Waiting for command to finish...")
+	log.Printf("Calling command: sh -c \"%s\"", strings.Join(tail[1:], " "))
 	err = command.Wait()
-	r := bufio.NewReader(stdout)
-	for {
-		line, _, err := r.ReadLine()
-		if err != nil {
-			break
-		}
-		log.Println(line)
-	}
 	log.Printf("command finished")
+	log.Printf("command output:\n%s", output)
 }
 
 func main() {
@@ -81,15 +67,13 @@ func main() {
 			log.Fatal(err)
 		}
 		if len(newChildren) > int(threshold) {
-			// TODO sort this and only take lower members
-			newChildren = newChildren[:threshold]
+			ss := sort.StringSlice(newChildren)
+			ss.Sort()
+			newChildren = ss[:threshold]
 		}
 
-		log.Println("1")
 		if !reflect.DeepEqual(children, newChildren) {
-			log.Println("2", hardLimit)
 			if len(newChildren) == int(threshold) || !hardLimit {
-				log.Println("3")
 				children = newChildren
 				log.Printf("all running nodes: [%+v] \n",
 					strings.Join(children, ", "))
